@@ -1,0 +1,55 @@
+
+
+** Annotation
+
+- 어노테이션
+- python에서는 Decorator라고 부름
+- @로 시작하는 문자
+- 클래스나 메소드 위에 추가하여 사용
+
+- 자주 사용하거나 복잡한 코드를 자동으로 삽입해줌
+-- 공통으로 사용되는 코드가 있는 경우 Annotation으로 만들어두고 사용하면
+-- 코드를 간결화하고 편리하게 애플리케이션으로 사용할 수 있음
+
+- 자바가 기본 제공하는 @Override
+- 이 메소드가 오버라이드된 메소드인지 확인해서 상위 클래스에 존재하지 않는 경우 에러를 표시하는 기능이 있음
+- java의 Spring 프레임워크는 100여가지 @ 제공함
+-- AOP (Aspect-Oriented Programming)
+	-- https://velog.io/@max9106/Spring-AOP%EB%9E%80-93k5zjsm95
+
+
+- 예시 : python 현재 시간을 매번 출력하는 데코레이터 생성
+
+	import datetime
+	class PrintNowDecorator:
+	    def __init__(self, f):
+	        self.func = f
+
+	    def __call__(self, *args, **kwargs):
+				# @호출하면 __call__부분이 붙여넣기 된 것과 같음
+	        print(datetime.datetime.now())
+	        self.func(*args, **kwargs)
+	        print(datetime.datetime.now())
+
+-- 다른 클래스 만들 때 겹치는 부분을 @불러오기
+
+	class MainClass:
+	    @PrintNowDecorator	#호출
+	    def main_func():
+	        print("mainfunc")
+
+	MainClass().main_func()
+
+
+
+** 어노테이션 만들 때 코드 변환 시점?
+
+- 1. Compile 할 때
+	-- .java 파일이 .class로 변경될 때
+	-- 정적
+
+- 2. Runtime 할 때
+	-- 인스턴스를 생성해서 코드를 실행할 때 
+	-- 동적
+
+

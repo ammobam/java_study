@@ -1,0 +1,62 @@
+
+
+** Enum
+
+- 이엔유엠. 열거형(enumerated type)으로 번역
+- 여러 개의 상수를 하나의 모임으로 묶어주기 위해 사용함
+- 입력받는 값의 범주를 제한하는 용도임. 설문조사 등.
+- 자바나 파이썬에서는 하나의 클래스로 간주함
+- 사용을 권장하지만 java는 1.5버전에서 추가되어 자주 사용하지 않음.
+
+- enum을 만든 배경을 보자
+
+- 예시1. 성별을 설정하는 변수를 생성하는 경우
+
+	boolean gender = true/false
+	-- 명목형. 값 자체에 의미가 없고 구분을 위해서만 사용.
+
+	-- 상수를 만들어 사용하면 의미 전달이 명확해짐
+	final boolean WOMAN = true;
+	final boolean MAN = false;
+	gender = MAN 또는 WOMAN;
+
+- 예시2. 상(3) 중(2) 하(1)를 저장하는 변수
+
+	int grade = 3, 2, 1;
+	-- 3, 2, 1의 의미 불명확하니 상수로 바꾸자
+
+	final int HIGH = 3;
+	final int MIDDLE = 2;
+	final int LOW = 1;
+
+-- grade 자료형에 맞지만 범위를 벗어나는 값을 넣으면?
+	grade = 5;
+	-- 아웃라이어 등 분석할 거리 많아짐
+
+-- enum으로 넣을 수 있는 값을 정해버리자
+
+	enum GRADE{
+		HIGH, MIDDLE, LOW;
+	}
+
+	GRADE grade = ?;
+	-- ?자리에 GRADE.HIGH, GRADE.MIDDLE, GRADE.LOW만 들어올 수 있음
+
+
+-- 값의 할당도 가능함
+	enum GRADE{
+		HIGH(3), MIDDLE(2), LOW(1);
+	}
+
+
+- Python에서 enum 만들기
+	from enum import Enum
+	class Grade{
+		HIGH = 3
+		MIDDLE = 2
+		LOW = 1
+	}
+	Grade.HIGH는 3
+
+
+

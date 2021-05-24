@@ -1,0 +1,473 @@
+
+** 상속과 다형성
+-- 남이 만든 클래스 잘 쓰려면 개념 배워두자
+
+
+1. 상속 (Inheritance)
+- 하위 클래스가 상위 클래스의 모든 것을 물려받는 것
+
+1) 상속하는 이유
+--(1) 여러 클래스에 중복된 내용을 상위 클래스에 만들어서 재사용하기 위함
+	-- 라이브러리, 프레임워크 생성할 때 이용
+--(2) 제공되는 클래스의 기능을 확장하기 위함 (= SubClassing)
+
+===========
+프로그램 작성 후 최적화하자 (커스터마이징)
+- 자기 코드 리뷰해도 문제점이 안 보이기 때문에 타인의 시선이 필요
+- 애자일방법론 (오픈베타)
+===========
+
+
+2) 용어
+상위 클래스 (Super Class, Based Class, 기반 클래스) : 물려주는 클래스
+하위 클래스 (Sub Class, Drived Class, 파생 클래스) : 물려받는 클래스
+단일 상속 : 상위 클래스가 1개인 경우
+■	-- 자바는 단일 상속만 지원함
+	--# 인터페이스를 만드는 목적?
+다중 상속 : 상위 클래스가 여러 개인 경우
+	-- C++, python은 다중 상속을 지원함
+	-- 다중 상속하면 기능이 여러개라 오류 발생할 확률 높음
+
+
+3) Java에서의 상속
+- 모든 클래스가 상속을 받아야 함
+- 기본적으로 java의 모든 클래스는 java.lang.Object 클래스로부터 상속 받음
+- 다른 클래스로부터 상속 받는 경우
+	클래스 extends 상위클래스
+- 상위 클래스가 java가 제공하는 기본 클래스인 경우를 POJO 클래스라고 함
+	-- POJO 클래스 .. Spring
+	-- Java는 이전버전을 모두 포괄하면서 업데이트 하므로 POJO클래스를 쓰면 안정적임
+	-- 라이브러리나 프레임워크는 유행 탐
+
+
+4) 상속했을 때 멤버 사용
+privite
+	- 상속 자체는 됨. 가려진 상태로 상속이 돼서 하위 클래스의 접근이 불가능함
+protected
+	- 자신의 패키지 내에서는 상속해서 사용 가능
+	- 다른 패키지에서는 가려진 상태로 상속돼서 접근이 불가능함
+default (= package)
+	- 하위 클래스에서 사용 가능
+public
+	- 하위 클래스에서 사용 가능하고 인스턴스도 사용 가능
+
+
+========================
+클래스 3개
+- Super > Sub > InheritanceMain 순으로 상속해보자
+__________________________________________________________________
+Super.java
+
+	public class Super {
+		// 변수 만들기
+		private int num;
+
+		// 메소드 만들기
+		public void disp() {
+			System.out.println("번호:" + num);
+		}
+	}
+_ _ _ _ _	________________________________________________________
+Sub.java 		: Superclass 탭에 상속받을 상위클래스 적음
+
+	// Super 클래스로부터 상속받는 Sub 클래스
+	public class Sub extends Super {
+		private String name;
+		public void method() {
+			//System.out.println(num);
+				// The field Super.num is not visible.
+				// num은 Super의 private멤버라서 보이지 않음. 사용할 수 없음.
+			//System.out.println(x);
+				// x cannot be resolved to a variable.
+				// x는 정의하지 않아서 걍 없음. 사용할 수 없음.
+			disp();
+				// Super에서 받아옴. public멤버
+		}
+	}
+_ _ _ _ _	________________________________________________________
+InheritanceMain.java
+
+	public class InheritanceMain {
+		public static void main(String[] args) {
+			Sub sub = new Sub();
+			sub.method();
+			// 상위클래스의 public 멤버 호출 가능
+			sub.disp();
+		}
+	}
+========================
+
+
+5) super
+- 하위 클래스의 static이 없는 메소드에서 상위 클래스의 인스턴스를 가리키는 숨겨진 포인터
+- 메소드 안에서 어떤 변수를 사용하면 먼저 메소드 안에서 찾아보고, 없으면 메소드 바깥의 프로퍼티를 찾아보고, 그래도 없으면 상위 클래스에서 찾음
+-- 메소드 바깥에서부터 찾고자 할 때 this를 사용
+-- 상위 클래스에서만 찾고자 할 때 super 사용
+
+
+6) 상위 클래스와 하위 클래스의 생성자
+- 클래스의 인스턴스를 만들면 상위 클래스의 생성자를 먼저 호출해서 인스턴스를 생성하고 하위 클래스의 생성자를 호출함
+- 하위 클래스의 생성자에는 작성하지 않아도 첫번째 줄에 super()코드가 존재하는데 상위 클래스의 Default Constructor를 호출하는 문장임
+- super()는 상위 클래스의 생성자를 호출하는 구문으로 생성자에서 제일 먼저 작성되어야 함
+-- 상위 클래스에 Default Constructor가 없으면 상속받으면 기본적으로 오류 발생함
+	==================================
+	-- Super.java 에 생성자를 추가하면
+	// 생성자
+	public Super(int num) {
+		this.num = num;
+	}
+
+	--  상속받은 Sub.java 클래스에 오류가 남
+	//Implicit super constructor Super() is undefined for default constructor. Must define an explicit constructor.
+		
+	-- 방법1. Super.java 의 생성자 전에 Super() 추가해서 해결
+	-- 내가 만든 클래스인 경우에만 수정할 수 있는 방법
+	public Super() {}	//해결
+
+	-- 방법2. Sub.java에서 상위 클래스 생성자를 호출해서 해결
+	-- 보통은 남의 클래스 상속받기 때문에 이 방법을 많이 쓴다
+	public Sub() {
+		//상위 클래스의 생성자를 호출
+		super(10);
+	}
+	==================================
+
+
+
+
+
+2. 다형성 (Polymorphism)
+- 동일한 메시지가 상황에 따라 다른 기능을 수행하는 것
+- 하나의 코드가 대입된 인스턴스에 따라 다른 메소드를 호출하는 것
+
+1) 상속 관계에서의 대입
+- 상위 클래스 타입으로 만들어진 변수에 하위 클래스 타입으로 만들어진 인스턴스 참조를 대입할 수 있음 ■
+- 하위 클래스 타입으로 만들어진 변수에 상위 클래스 타입으로 만들어진 인스턴스 참조는 기본적으로는 대입 불가능
+	-- '강제 형변환' 하면 대입이 가능함
+	-- 단, 변수가 하위 클래스 타입의 인스턴스 참조를 가지고 있을 때 가능함.
+	-- 그 외의 경우에 오류가 나지는 않지만 실행할 때 형변환 예외를 발생시킴
+
+	============================
+	InheritanceMain.java
+
+	Super sup = new Super(10);
+	//Super가 Sub의 상위 클래스이므로 이렇게 대입이 가능
+	sup = new Sub();
+
+	// 상위클래스의 인스턴스 참조를
+	Sub sub1 = new Sub();
+		// 하위클래스 변수에 대입할 수 없음
+		// sup1 = new Super(20);
+		
+		// 강제형변환 됨
+		// 그러나 실행중 튕김
+		// class Super cannot be cast to class Sub
+		// sub1 = (Sub)(new Super(20));
+
+		//sup가 Super 타입으로 만들어졌지만
+		//Sub 타입의 인스턴스를 참조하기 때문에 이렇게 강제형변환하여 대입이 다능
+		// 거의 모든 프레임워크를 사용하는 기반 지식
+		sub1 = (Sub)sup;
+	// 수퍼, 서브.. 다르게 읽어야 오타 없이 작성할 수 있음
+	============================
+
+
+2) Overriding	■
+- 상위 클래스에 존재하는 메소드를 하위 클래스에서 다시 만듬
+- 재정의
+- Overridng 하는 이유는 "기능 확장"임. 그래서 범위가 커지는 방향으로 가야함.
+- java에서는 하위클래스 메소드의 접근지정자가 같거나 커야함
+
+	priate < default < protected < public
+	getter < setter	// property를 Overriding할 때.
+
+- 상위 클래스의 메소드 호출
+	super.메소드이름()
+- java는 Overrideing 할 때 특별한 예약어를 사용하지 않아도 되지만
+- 일반적으로 메소드 상단에 @Override를 붙여서 명시적으로 Override 메소드임을 표시해줌
+	-- 이 메소드는 본 클래스에서 만든 것이 아니고 상위 클래스에 있던 것을 표시
+
+
+3) 참조형 변수의 멤버 호출
+- 참조형 변수들은 변수를 선언할 때 사용한 자료형을 보고 자신의 멤버를 결정함
+	-- Class 보고 결정
+- 예외적으로 Overriding 메소드는 인스턴스를 만들 때 사용한 생성자를 가지고 멤버를 결정함
+- 이를 이용해서 다형성 구현함
+
+
+	========================
+	다형성 실습
+	Stella.java / Druid.java / Lucy.java
+	CypersMain.java
+
+	public class CypersMain {
+		public static void main(String[] args) {
+				Stella s = new Stella();
+				s.attack();
+
+				Druid d = new Druid();
+				d.attack();
+
+				Lucy l = new Lucy();
+				l.attack();
+		}
+	}
+
+- 작동은 되나 비효율적
+- 게임 캐릭터마다 다 다른 단축키를 사용하는 상황
+
+	_ _ _ _ _ ____________________________
+
+- Cypers.java 생성
+- 각 캐릭터 클래스에서 Cypers를 상속받도록 함
+		public class 캐릭터 extends Cypers
+
+- Main.java
+		Cypers cp = new Stella();
+			// 대입된 인스턴스에 따라 다른 메소드를 호출
+			// 다형성(Polymorphism)이라고 함
+		cp.attack();
+- Cypers.java
+
+		public class Cypers {
+			public void attack() {
+			}
+		}
+
+	//?????????????????? 여기 코드 맞을걸
+	========================
+
+
+
+
+
+3. 추상화 (Abstract)
+
+1) Abstract Class
+- 인스턴스를 만들 수 '없는' 클래스 (new를 이용해서 생성자를 호출하지 못함)
+- 변수를 만들 수 있음
+- 상속을 통해서만 사용
+- class 앞에 abstract를 붙이면 됨
+	
+
+2) Abstract Method
+- 내용이 없는 메소드( {} 없음 )
+	-- abstract를 붙이지 않아도 모든 메소드는 추상메소드가 됨
+- 하위 클래스에서 재정의하여 사용함
+- java에서는 추상클래스와 인터페이스에만 존재함
+	// Cypers.java
+	// 추상메소드
+	public abstract void attack(); 	//  {}가 아닌 ;
+
+-- 공통된 기능을 추상메소드로 처리하면 cp는 오류뜸.
+	// CypersMain.java 파일에서
+	// cp = new Cypers();
+	// cp.attack();
+	-- 추상화 전에는 각 캐릭터시트마다 attack();을 따로 불러내 쓰므로 쓸모없음. 오류는 안 남.
+	-- 추상화 후에는 위 코드는 오류를 냄
+
+
+
+
+
+4. Interface
+- template = protocol = Interface(특히 자바에서 인터페이스라고 함)
+- 고객과 특정한 모형을 만들기로 약속
+
+1) Template Programming
+- template method pattern
+- 프로그램 만들 때 모형(template)을 먼저 만들고 나중에 구현하는 방식
+-- 여기서 발전한 게 애자일 방법론. 중간중간 다시 고객의 니즈를 묻는다.
+
+2) 인터페이스 생성
+class 대신에 interface라고 만들면 됨
+	interface 이름{
+		~내용~
+	}
+
+3) 인터페이스 구성 요소
+- 변수를 만들면 전부 final이 자동으로 붙음
+- 값(데이터)을 변경할 수 없는 형태로 만들어짐
+-- abstract를 붙이지 않아도 모든 메소드는 추상메소드가 됨
+- 내용이 있는 메소드를 만들려면 메소드의 결과형 앞에 default를 붙이면 됨
+	public main default `~~~~
+	//// ?????????? 코드 확인
+
+------------------ 접근지정자의 default와 default메소드를 구별하기 위해 지정자 디폴트는 패키지라고 부름
+
+4) 클래스에 구현
+
+	class 클래스이름 extends 상위클래스이름 implements 인터페이스이름나열 {
+	}
+
+5) 인터페이스는 여러개 구현 가능
+
+6) 인터페이스끼리 '상속' 가능함
+-- 이때는 implements 대신에 'extends'를 사용함
+
+7) 인스턴스를 생성할 수 없고 변수만 생성 가능
+- 인터페이스로 만든 변수에 인터페이스를 구현한 클래스의 인스턴스를 대입하는 것이 가능함
+
+8) 어떤 클래스가 다른 클래스로부터 상속을 받을 때
+- 하위 클래스가 1개인 경우 클래스 이름:
+	상위클래스이름Ex
+- 인터페이스 구현하는 경우 이름:
+	유저서비스Impl
+- java에서 이벤트 처리에 관련된 인터페이스 이름:
+	이벤트명Listener
+	-- Listener : 이벤트를 처리하기 위한 인터페이스 또는 클래스
+	-- call back 메소드 : 이벤트 발생시 호출되는 메소드
+
+========================
+인터페이스 쓰는 방법
+Cypers.java
+	public interface Cypers{
+	}
+Stella.java
+	public class Stella implements Cypers{
+	}
+========================
+
+
+
+
+
+5. final
+- 세 가지 기능
+- 시스템 개발 쪽에서 자주 씀
+
+1) final 변수
+- 상수 만들기. 변수의 값을 변경할 수 없도록 함.
+- 자바에서는 이름이 모두 대문자.
+- 최근에는 enum으로 대체하는 경향
+	-- enum은 열거형(enumerated type)이라고 부름
+	-- 열거형은 서로 연관된 상수들의 집합
+
+2) final 메소드
+- 메소드의 결과형 앞에 final을 추가하는 형태로 만듬
+- final 메소드는 Overriding 할 수 없음
+-- 고치면 안 되는 메소드를 final 선언함.
+-- 예) 시스템 조작 메소드
+-- 이부분을 잘 써서 윈10은 블루스크린 덜 뜸
+
+3) final 클래스
+- final 메소드의 확장판
+- class 앞에 final을 추가하는 형태로 만들고 이 클래스는 상속이 안 됨
+
+
+
+
+
+6. 클래스 사이의 관계
+1) is a : 상속 관계
+- 일반화
+-- 발음 이즈어
+-- #면접 때 inheritance보다 is-a 용어를 쓰면 객체지향 공부 제대로 한 것으로 보임
+--  https://castle1262.tistory.com/31
+
+2)has-a : 포함관계
+- 클래스 안에서 다른 클래스가 사용되는 상황
+- Aggrregation : 포함하는 인스턴스와 포함된 인스턴스의 '수명이 다른' 경우
+	-- 메인 메소드 안에서 선언한 인스턴스는 메소드만큼의 수명
+	-- 클래스 안에서 선언한 인스턴스는 메소드 내부에서 선언한 것보다 긴 수명
+- Composition : 포함하는 인스턴스와 포함된 인스턴스의 '수명이 같은' 경우
+
+===
+#자료구조 공부
+heap 배열 부모가 자식보다 큰 구조
+stack
+메소드는 자기 스택을 만듬
+===
+
+
+
+
+
+
+
+** Nested Class
+- 클래스 안에 존재하는 클래스
+-- 가볍게 보자
+
+1. Inner Class 
+- 클래스 안에 만든 클래스
+- 클래스 내부에서만 사용하기 위해 생성
+- Java에서는 Inner Class도 별도의 클래스로 생성함
+
+	OuterClass $ InnerClass.class
+
+
+2. Static Inner Class
+- 내부에 있는 클래스 앞에 static을 추가한 클래스
+- 내부에 있는 클래스 안에 static 변수나 static 메소드가 있으면 static inner class를 만들어야 함
+"-- static : 인스턴스 생성 없이"
+
+
+3. Local Inner Class
+- 메소드 안에 만든 클래스
+- 메소드 안에서만 사용이 가능함
+
+
+4. Anonymous Class (λ)	■
+- 익명의 클래스. 이름없음.
+- 다른 클래스를 상속받거나, 인터페이스를 구현할 때
+-- 별도의 Class를 만들지 않고 바로 인스턴스를 생성해서 사용함
+- 추상 메소드가 1개인 클래스나 인터페이스인 경우, 람다(λ)로 표현 가능함
+-- 안드로이드 체제에서는 내가 작성한 코드도 람다식으로 바뀜. 최적화.
+-- 안드로이드/빅데이터 분야에서 자주 사용
+
+	new 상위클래스 또는 인터페이스 이름 () {
+		필요한 메소드를 재정의
+	}
+-- Anonymous 메소드 끝에서 메소드를 바로 호출 가능
+		~~~	}.메소드
+
+-- 원래 코드는 선언할 게 많아서 메모리에 load 해둘 코드가 많은데,
+-- 익명클래스를 이용하면 코드를 사용할 때만 메모리에 load 되어
+-- 메모리가 절약되는 장점이 있음
+
+========
+map :: 변형
+filter :: 걸러냄
+reduce
+========
+
+
+
+
+			
+** 데이터 공유
+
+1. 전역 변수
+- 모든 곳에서 사용할 수 있는 변수
+- 자바에서는 static 변수를 public으로 만들면 모든 곳에서 사용 가능
+-- 이 방법은 권장하지 않음
+-- 대신 Singleton 패턴으로 클래스를 디자인해서 사용하는 것을 권장함
+
+2. 동일한 클래스로부터 만들어진 인스턴스 간의 데이터 공유
+- static을 이용
+
+3. 포함관계인 클래스 사이에서의 데이터 공유
+- 생성자 또는 프로퍼티(여기서는 setter)를 이용
+
+
+
+
+
+
+====
+금요일
+- UML
+- 예외처리
+- 자료구조
+
+월요일
+- 자료구조, 스레드
+
+-- quick sort만들기
+
+DB 4일간
+- java, python DB 연동
+
+
+|ll||ll
